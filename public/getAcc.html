@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Account</title>
+</head>
+<body>
+    <input placeholder="Id" id="id" width="350" height="50"><br>
+    <button id="btn">Submit</button>
+
+    <script src="http://localhost:8000/axios.min.js"></script>
+
+    <script>
+        const id = document.getElementById("id");
+        const btn = document.getElementById("btn");    
+
+        btn.onclick = async () => {
+            const res = await axios.get(`http://localhost:8000/api?id=${id.value}`);
+            console.log(res);
+        }
+    </script>
+</body>
+</html>

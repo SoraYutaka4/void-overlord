@@ -1,0 +1,5 @@
+node_modules/
+.env
+dual.bat
+/*.ps1
+/*.txt

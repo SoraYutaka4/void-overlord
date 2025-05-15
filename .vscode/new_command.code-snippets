@@ -1,0 +1,39 @@
+{
+	"new_command": {
+	  "prefix": "cm",
+	  "body": [
+		"export default {",
+		"  info: {",
+		"    name: \"${1:your-command-name}\",", 
+		"    description: \"${2:your-command-description}\",",
+		"    version: \"${3:1.0.0}\",",
+		"    prefix: ${4:true},",
+		"  },",
+		"",
+		"  execute: ({api, message, manager, parsedMessage}) =>{",
+		"    ${5}",
+		"  },",
+		"} satisfies import(\"../types\").BotCommand;"
+	  ],
+	  "description": "Tạo đối tượng cm với các thuộc tính mặc định"
+	},
+	"new_event": {
+		"prefix": ["event", "ev"],
+		"body": [
+		  "export default {",
+		  "  info: {",
+		  "    name: \"${1:your-command-name}\",", 
+		  "    description: \"${2:your-command-description}\",",
+		  "    version: \"${3:1.0.0}\",",
+		  "    prefix: ${4:true},",
+		  "  },",
+		  "",
+		  "  execute: ({api, message, manager}) =>{",
+		  "    ${5}",
+		  "  },",
+		  "} satisfies import(\"../types\").BotEvent;"
+		],
+		"description": "Tạo đối tượng cm với các thuộc tính mặc định"
+	  }
+  }
+  

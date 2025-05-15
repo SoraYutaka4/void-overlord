@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="socket.io.min.js"></script>
+    <title>Chat App</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #63a4ff, #b1bfd8); 
+            box-sizing: content-box;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgb(0, 170, 255);
+            border-left-color: #f0f0f0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            display: flex;
+            height: 92.5%;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 0px 0px 12px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            overflow: hidden; 
+        }
+
+        .chat-container .room-id {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+            color: #fff;
+            width: 250px;
+            height: 50px;
+            background: #525252;
+            text-align: center;
+            line-height: 50px;
+            font-size: 18px;
+            font-family: sans-serif;
+            font-weight: 700;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 50%; 
+            padding: 12px 16px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); 
+            min-width: 275px;
+        }
+
+        .message.self {
+            align-self: flex-end;
+            background: linear-gradient(to right, #00c6ff, #007bff); 
+            color: white; 
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: #f0f0f0;
+            color: #333; 
+        }
+
+        .message .sender {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #bd9847;
+            width: 100%;
+        }
+
+        .message.self .sender {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ff4a32;
+            width: 100%;
+        }
+
+        .message .msg{
+            margin: 0px 25px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0; 
+            background: #f8f8f8; 
+            align-items: center;
+        }
+
+        input, textarea {
+            flex: 1;
+            padding: 12px;
+            border: none; 
+            border-radius: 25px; 
+            background: #fff; 
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); 
+            font-size: 1em; 
+            resize: none;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 123, 255, 0.5); 
+        }
+
+        button {
+            padding: 12px 20px; 
+            margin-left: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 25px; 
+            cursor: pointer;
+            transition: background 0.3s ease; 
+            font-size: 1em; 
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .file-info {
+            margin-left: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            padding: 0px;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+
+
+        .message img,
+        .message video,
+        .message audio {
+            max-width: 75%;
+            border-radius: 8px;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-height: 450px;
+            border: 2px solid #fff;
+        }
+
+        .message a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .message.self a {
+            color:#aeff0b;
+        }
+
+        .message a:hover {
+            text-decoration: underline;
+        }
+
+        .id-show{
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-family: sans-serif;
+            font-size: 21px;
+            font-weight: 600;
+            color: #fff
+        }
+
+        .tt-id {
+            width: 100%; 
+            color: #fff;
+            width: 100%;
+            height: 50px;
+            background: #525252;
+            text-align: center;
+            font-size: 18px;
+            font-family: sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            color: #ff3f7c;
+            line-height: 50px;
+            border-bottom: 2.5px solid #5cffb3;
+        }
+
+        .tt-id div {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tt-id .rid {
+            border-right: 5px solid #d2d2d2;
+        }
+
+        .tt-id .rid::before {
+            content: "Room ID: ";
+            text-decoration: none !important;
+            color: #fff;
+            display: inline-block;
+            margin-right: 12.5px;
+        }
+
+        .tt-id .uid::before {
+            content: "User ID: ";
+            text-decoration: none !important;
+            color: #fff;
+            display: inline-block;
+            margin-right: 12.5px;
+        }
+        
+        .container{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; 
+            max-width: 950px; 
+            height: 95vh; 
+        }
+
+        .typing-indicator {
+            margin-left: 25px;
+            font-size: 18px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .typing-user {
+            margin-right: 10px;
+            color: #444;
+            font-weight: 600;
+        }
+
+        .dots {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 7.5px;
+            height: 7.5px;
+            margin: 0 2px;
+            border-radius: 50%;
+            background-color: #065b77;
+            opacity: 0;
+            animation: typing 1.2s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes typing {
+        0% {
+            opacity: 0;
+            transform: translateY(0);
+        }
+        50% {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(0);
+        }
+        }
+
+        .show-typing {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tt-id">
+            <div class="rid"></div>
+            <div class="uid"></div>
+        </div>
+        <div class="chat-container">
+            <div class="messages" id="chatBox"></div>
+            <div class="input-area">
+                <textarea id="messageInput" rows="3" placeholder="Nhập tin nhắn..."></textarea>
+                <button id="sendBtn">Send</button>
+                <input type="file" id="fileUpload" accept=".jpg,.png,.gif,.webp,.pdf,.mp4,.mp3,.txt,.zip" style="display: none;">
+                <button onclick="document.getElementById('fileUpload').click()">📁</button>
+                <span id="fileInfo" class="file-info"></span>
+                <button id="removeFile" class="remove-file" style="display: none;">✖</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <script>
+        const checkApiStatus = (statusCodeOrFn) => {
+            const statusCode = typeof statusCodeOrFn === "function" ? statusCodeOrFn() : statusCodeOrFn;
+            return statusCode >= 200 && statusCode < 300;
+        }
+
+        function createLoadingSpinner() {
+            const loadingContainer = document.createElement("div");
+            loadingContainer.classList.add("loading-container");
+
+            const spinner = document.createElement("div");
+            spinner.classList.add("spinner");
+
+            loadingContainer.appendChild(spinner);
+
+            return loadingContainer;
+        }
+
+        let uid = "";
+        let idRoom = "";
+        let userData = null;
+        const history_chat = new Map();
+
+        const uidModal = document.createElement("div");
+        uidModal.innerHTML = `
+            <div style="z-index: 100; width: 375px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); text-align: center;">
+                <h2>Enter Your Details</h2>
+                <input type="text" id="uidInput" placeholder="Your ID" style="padding: 8px; width: 80%; border: 1px solid #ccc; border-radius: 5px;">
+                <br><br>
+                <input type="text" id="roomInput" placeholder="Room ID" style="padding: 8px; width: 80%; border: 1px solid #ccc; border-radius: 5px;">
+                <br><br>
+                <button id="uidSubmit" style="padding: 10px 20px; border: none; background: #007BFF; color: white; border-radius: 5px; cursor: pointer;">Join</button>
+            </div>
+            <div id="uidOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9;"></div>
+        `;
+        document.body.appendChild(uidModal);
+
+        let typingUsers = []; // Mảng lưu trữ tên người đang gõ
+        let typingTimeouts = {}; // Để lưu lại ID của setTimeout cho từng người
+
+
+        function createTypingIndicator(uid) {
+            const containerElement = document.querySelector(".chat-container");
+
+            let typingIndicator = document.querySelector('.typing-indicator');
+
+            if (!typingIndicator) {
+                typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('typing-indicator');
+                typingIndicator.id = 'typingIndicator';
+                const inputAreaElement = document.querySelector(".input-area");
+                if (containerElement && inputAreaElement) {
+                    containerElement.insertBefore(typingIndicator, inputAreaElement);
+                }
+            }
+
+            if (!typingUsers.includes(uid)) {
+                typingUsers.push(uid);
+            }
+
+            let typingText = '';
+            if (typingUsers.length === 1) {
+                typingText = `${typingUsers[0].slice(0, 10)} is typing`;
+            } else if (typingUsers.length === 2) {
+                typingText = `${typingUsers[0].slice(0, 10)} và ${typingUsers[1].slice(0, 10)} is typing`;
+            } else if (typingUsers.length >= 3) {
+                typingText = `${typingUsers.length} user is typing`;
+            }
+
+            let typingUser = typingIndicator.querySelector('#typingUser');
+            if (!typingUser) {
+                typingUser = document.createElement('span');
+                typingUser.classList.add('typing-user');
+                typingUser.id = 'typingUser';
+                typingIndicator.appendChild(typingUser);
+            }
+            typingUser.textContent = typingText;
+
+            let dotsContainer = typingIndicator.querySelector('.dots');
+            if (!dotsContainer) {
+                dotsContainer = document.createElement('div');
+                dotsContainer.classList.add('dots');
+                typingIndicator.appendChild(dotsContainer);
+
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('span');
+                    dot.classList.add('dot');
+                    dotsContainer.appendChild(dot);
+                }
+            }
+
+            if (typingTimeouts[uid]) {
+                clearTimeout(typingTimeouts[uid]); // Hủy timeout cũ nếu có
+            }
+        }
+
+        function updateTypingIndicator() {
+            const typingIndicator = document.querySelector('.typing-indicator');
+
+            if (typingUsers.length === 0 && typingIndicator) {
+                typingIndicator.remove();
+            } else if (typingIndicator) {
+                let typingText = '';
+                if (typingUsers.length === 1) {
+                    typingText = `${typingUsers[0].slice(0, 10)} is typing`;
+                } else if (typingUsers.length === 2) {
+                    typingText = `${typingUsers[0].slice(0, 10)}, ${typingUsers[1].slice(0, 10)} is typing`;
+                } else if (typingUsers.length >= 3) {
+                    typingText = `(${typingUsers.length}) user is typing`;
+                }
+
+                const typingUser = typingIndicator.querySelector('#typingUser');
+                if (typingUser) {
+                    typingUser.textContent = typingText;
+                }
+            }
+        }
+
+        function removeTypingUser(uid) {
+            typingUsers = typingUsers.filter(user => user !== uid);
+            updateTypingIndicator();
+        }
+
+        new Promise((resolve) => {
+            const input1 = document.getElementById("uidInput");
+            const input2 = document.getElementById("roomInput");
+
+            document.getElementById("uidSubmit").addEventListener("click", async () => {
+                if (!input1.value || !input2.value) return alert("ID and Room ID is required");
+
+                uid = input1.value.trim();
+
+                const spinnerElement = createLoadingSpinner();
+
+                spinnerElement.style.zIndex = 100;
+                document.body.appendChild(spinnerElement);
+
+                
+                spinnerElement.remove();
+
+
+                idRoom = input2.value.trim();
+                document.querySelector(".uid").innerHTML = uid.length > 17 ? uid.slice(0, 17) + "....." : uid;
+                document.querySelector(".uid").title = uid;
+
+                document.querySelector(".rid").innerHTML = idRoom.length > 17 ? idRoom.slice(0, 17) + "....." : idRoom;
+                document.querySelector(".rid").title = idRoom;
+
+                uidModal.remove();
+                resolve();
+            });
+
+            input1.onkeypress = (event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    if (!input1.value || !input2.value) return alert("ID and Room ID is required");
+                    event.preventDefault(); 
+                    document.getElementById("uidSubmit").click();
+                }
+            }
+
+            input2.onkeypress = (event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    if (!input1.value || !input2.value) return alert("ID and Room ID is required");
+                    event.preventDefault(); 
+                    document.getElementById("uidSubmit").click();
+                }
+            }
+
+        }).then(() => {
+            const socket = io();
+            socket.emit("join room", idRoom);
+
+            let isTabFocused = true;
+            let notificationPermissionAsked = false;
+
+            window.onfocus = () => isTabFocused = true;
+            window.onblur = () => isTabFocused = false;
+
+            const fileInput = document.getElementById("fileUpload");
+            const fileInfo = document.getElementById("fileInfo");
+            const removeFileBtn = document.getElementById("removeFile");
+
+            let typingTimeout;
+            let isTyping = false; 
+
+            document.getElementById("messageInput").oninput = (e) => {
+                if (!isTyping) {
+                    socket.emit("typing", {
+                        senderId: uid,
+                        isTyping: true,
+                        idRoom
+                    });
+                    isTyping = true;
+                }
+
+                clearTimeout(typingTimeout);
+
+                typingTimeout = setTimeout(() => {
+                    socket.emit("typing", {
+                        senderId: uid,
+                        isTyping: false,
+                        idRoom
+                    });
+                    isTyping = false;
+                }, 250); 
+            };
+
+            socket.on("typing", ({ senderId, isTyping }) => {
+                if (isTyping){
+                    createTypingIndicator(senderId);
+                } else {
+                    removeTypingUser(senderId);
+                }
+            });
+
+            fileInput.addEventListener("change", () => {
+                if (fileInput.files.length > 0) {
+                    fileInfo.textContent = `📄 ${fileInput.files[0].name}`.slice(0, 16);
+                    console.log(fileInput);
+                    removeFileBtn.style.display = "inline-block";
+                }
+            });
+
+            removeFileBtn.addEventListener("click", () => {
+                fileInput.value = "";
+                fileInfo.textContent = "";
+                removeFileBtn.style.display = "none";
+            });
+
+            document.getElementById("sendBtn").onclick = () => {
+                if (!notificationPermissionAsked && Notification.permission === "default") {
+                    Notification.requestPermission();
+                    notificationPermissionAsked = true;
+                }
+
+                const input = document.getElementById("messageInput");
+                const file = fileInput.files[0];
+                const text = input.value.trim();
+
+                if (text || file) {
+                const message = {
+                    idRoom,
+                    type: file ? "combined" : "text",
+                    content: text,
+                    sender: uid,
+                    timestamp: Date.now(),
+                };
+
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) { 
+                        alert("File quá lớn! Vui lòng chọn file dưới 5MB.");
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        message.files = [{
+                            name: file.name,
+                            url: e.target.result,
+                            size: file.size,
+                            type: file.type
+                        }];
+                        socket.emit("chat message", message);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    socket.emit("chat message", message);
+                }
+
+
+                input.value = "";
+                fileInput.value = "";
+                fileInfo.textContent = "";
+                removeFileBtn.style.display = "none";
+
+                }
+            };
+
+            function getFileType(fileName) {
+                const ext = fileName.split('.').pop().toLowerCase();
+                if (["jpg", "png", "webp"].includes(ext)) return "image";
+                if (ext === "gif") return "gif";
+                if (["mp4", "mov"].includes(ext)) return "video";
+                if (["mp3", "wav"].includes(ext)) return "audio";
+                return "file";
+            }
+
+            const chatBox = document.getElementById("chatBox");
+
+            function addMessage(msg) {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message", msg.sender === uid ? "self" : "other");
+
+                const nameTag = document.createElement("div");
+                nameTag.textContent = msg.sender;
+                nameTag.style.fontWeight = "bold";
+                nameTag.className = "sender";
+                messageElement.appendChild(nameTag);
+
+                if ((msg.type === "text" || msg.type === "combined") && msg.content.length !== 0){
+                    const textNode = document.createElement("div");
+                    textNode.className = "msg";
+                    textNode.innerHTML = msg.content
+                        .replace(/</g, "&lt;") 
+                        .replace(/>/g, "&gt;") 
+                        .replace(/\n/g, "<br/>") 
+                        .replace(/```([\s\S]+?)```/g, "<pre style='background: #222; color: #fff; padding: 10px; border-radius: 5px;'><code>$1</code></pre>") // Code block
+                        .replace(/`([^`]+)`/g, "<code style='background: #333; color: #fff; padding: 2px 5px; border-radius: 3px;'>$1</code>") // Inline code
+                        .replace(/\*(.*?)\*/g, "<b>$1</b>") 
+                        .replace(/\*\*(.*?)\*\*/g, "<i>$1</i>") 
+                        .replace(/~~(.*?)~~/g, "<s>$1</s>")
+                        .replace(/__(.*?)__/g, "<u>$1</u>"); 
+
+                    messageElement.appendChild(textNode);
+                }
+                
+                if (msg.files?.length) {
+                    msg.files.forEach(file => {
+                        messageElement.appendChild(renderFile(file, file.type));
+                    });
+                }
+
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                history_chat.set(msg.id, messageElement);
+            }
+
+            function renderFile(file, messageType) {
+                const fileContainer = document.createElement("div");
+                fileContainer.className = "msg";
+
+                if (messageType === "image" || messageType === "gif") {
+                    const img = document.createElement("img");
+                    img.src = file.url;
+                    img.alt = file.name;
+                    img.style.maxWidth = "100%";
+                    img.style.borderRadius = "5px";
+                    fileContainer.appendChild(img);
+                } else if (messageType === "video") {
+                    const video = document.createElement("video");
+                    video.src = file.url;
+                    video.controls = true;
+                    video.style.maxWidth = "100%";
+                    fileContainer.appendChild(video);
+                } else if (messageType === "audio") {
+                    const audio = document.createElement("audio");
+                    audio.src = file.url;
+                    audio.controls = true;
+                    fileContainer.appendChild(audio);
+                } else {
+                    const fileLink = document.createElement("a");
+                    fileLink.href = file.url;
+                    fileLink.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    fileLink.download = file.name;
+                    fileLink.target = "_blank";
+                    fileContainer.appendChild(fileLink);
+                }
+
+                return fileContainer;
+            }
+
+            document.getElementById("messageInput").addEventListener("keydown", (event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    document.getElementById("sendBtn").click(); 
+                }
+            });
+
+            socket.on("chat history", (history) => {
+                history.forEach(msg => addMessage(msg));
+            });
+
+            socket.on("chat message", (msg) => {
+                addMessage(msg);
+            });
+
+            socket.on("delete message", (msg) => {
+                history_chat.get(msg.messageId).remove();
+            });
+
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 5; 
+
+            socket.on("disconnect", (reason) => {
+                console.warn(`⚠️ Mất kết nối! Lý do: ${reason}`);
+                showReconnectMessage();
+                reconnectAttempts = 0; 
+            });
+
+            socket.on("connect_error", (error) => {
+                console.error(`❌ Lỗi kết nối: ${error}`);
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    setTimeout(() => {
+                        console.log(`🔄 Đang thử kết nối lại... (Lần ${reconnectAttempts})`);
+                        socket.connect();
+                    }, 5000);
+                } else {
+                    console.error("❌ Không thể kết nối lại! Vui lòng làm mới trang.");
+                    showReconnectErrorMessage();
+                }
+            });
+
+            function showReconnectMessage() {
+                const messageElement = document.createElement("div");
+                messageElement.textContent = "⚠️ Mất kết nối! Đang thử kết nối lại...";
+                messageElement.style.color = "orange";
+                chatBox.appendChild(messageElement);
+            }
+
+            function showReconnectErrorMessage() {
+                const messageElement = document.createElement("div");
+                messageElement.textContent = "❌ Không thể kết nối lại! Vui lòng làm mới trang.";
+                messageElement.style.color = "red";
+                chatBox.appendChild(messageElement);
+            }
+
+            socket.on("reconnect", (attemptNumber) => {
+                console.log(`🔄 Kết nối lại thành công sau ${attemptNumber} lần thử!`);
+                const messageElement = document.createElement("div");
+                messageElement.textContent = `🔄 Kết nối lại thành công!`;
+                messageElement.style.color = "green";
+                chatBox.appendChild(messageElement);
+                socket.emit("join room", idRoom); 
+            });
+
+        });
+    </script>
+    
+</body>
+</html>

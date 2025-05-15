@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id         String       @id  @unique @default(uuid())
+  name       String
+  firstName  String
+  level      Int          @default(0)
+  exp        Int          @default(0)
+  balance    BigInt       @default(0)
+  DT_Daily   String
+  DT_Command String
+  DT_Fight   String
+  powers     Power[]      @relation("UserPower")
+  bagSkills  BagSkill[]   @relation("UserBagSkills")
+  skillSlots SkillSlot[]  @relation("UserSkillSlots")
+  defeated_lost BigInt   @default(0)
+}
+
+model Power {
+  attack   BigInt  @default(0)
+  defense  BigInt  @default(0)
+  user     User    @relation("UserPower", fields: [userId], references: [id], onDelete: Cascade)
+  userId   String  @id
+}
+
+model BagSkill {
+  userId   String  @id
+  fight    String  @default("[]")
+  defense  String  @default("[]")
+  special  String  @default("[]")
+  user     User    @relation("UserBagSkills", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SkillSlot {
+  id          String             @id @default(uuid()) 
+  user        User               @relation("UserSkillSlots", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  skillS1     InfoSkillFight?     @relation("SS_1", fields: [skillS1Id], references: [id], onDelete: Cascade)
+  skillS1Id   String?  @unique  
+
+  skillS2     InfoSkillFight?     @relation("SS_2", fields: [skillS2Id], references: [id], onDelete: Cascade)
+  skillS2Id   String?  @unique  
+
+  skillS3     InfoSkillDefense?   @relation("SS_3", fields: [skillS3Id], references: [id], onDelete: Cascade)
+  skillS3Id   String?  @unique  
+
+  skillS4     InfoSkillDefense?   @relation("SS_4", fields: [skillS4Id], references: [id], onDelete: Cascade)
+  skillS4Id   String?  @unique  
+
+  skillS5     InfoSkillSpecial?   @relation("SS_5", fields: [skillS5Id], references: [id], onDelete: Cascade)
+  skillS5Id   String?  @unique  
+}
+
+
+
+
+model InfoSkillFight {
+  id            String    @id @default(uuid())
+  SS_S1         SkillSlot? @relation("SS_1")
+  SS_S2         SkillSlot? @relation("SS_2")
+  name          String    @default("Wooden Staff")
+  description   String    @default("Một cây gậy gỗ đơn giản không có thuộc tính đặc biệt")
+  attack        Int       @default(8)
+  sign          String    @default("add")
+  level         Int       @default(1)
+  rank          String    @default("N")
+  imgUrl        String    @default("https://gbf.wiki/images/thumb/3/3f/Weapon_b_1010400000.png/462px-Weapon_b_1010400000.png")
+  SID           Int       @default(1)
+}
+
+
+
+
+model InfoSkillDefense {
+  id            String    @id @default(uuid())
+  SS_S3         SkillSlot? @relation("SS_3")
+  SS_S4         SkillSlot? @relation("SS_4")
+  name          String    @default("Iron Shield")
+  description   String    @default("Một cái khiên sắt vững chắc cung cấp sự bảo vệ vừa phải")
+  defense       Int       @default(10)
+  sign          String    @default("add")
+  level         Int       @default(1)
+  rank          String    @default("N")
+  imgUrl        String    @default("https://gbf.wiki/images/thumb/2/2d/Icon_Support_Skill.png/50px-Icon_Support_Skill.png")
+  SID           Int       @default(1)
+}
+
+
+model InfoSkillSpecial {
+  id            String    @id @default(uuid())
+  SS_S5         SkillSlot? @relation("SS_5")
+  name          String    @default("Iron Sword")
+  description   String    @default("Một thanh kiếm đa năng cung cấp cả tấn công và phòng thủ")
+  attack        Int       @default(15)
+  defense       Int       @default(5)
+  sign_attack   String    @default("add")
+  sign_defense  String    @default("add")
+  level         Int       @default(1)
+  rank          String    @default("N")
+  imgUrl        String    @default("https://gbf.wiki/images/thumb/3/30/Weapon_b_1010001300.png/462px-Weapon_b_1010001300.png")
+  SID           Int       @default(1)
+}
