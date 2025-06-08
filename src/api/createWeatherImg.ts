@@ -1,5 +1,6 @@
 import Jimp from "jimp";
 import path from "path";
+import fs from "fs";
 
 const imgPath = path.join(__dirname, "..", "public", "img");
 
@@ -124,8 +125,11 @@ export async function CreateWeatherImage(time: string, is_day: number, temp_c: n
         
         baseImg.crop(105, 85, 635, 250);
 
+        const weatherDir = path.join(__dirname, "..", "public", "weather");
+        if (!fs.existsSync(weatherDir)) fs.mkdirSync(weatherDir, { recursive: true });
+
         // Save image
-        await baseImg.writeAsync(path.join(__dirname, "..", "public", "weather", "w.png"));
+        await baseImg.writeAsync(path.join(weatherDir, "w.png"));
 
         console.log("Đã tạo hình ảnh thành công!");
     } catch (error) {

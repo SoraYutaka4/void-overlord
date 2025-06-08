@@ -15,11 +15,14 @@ export * from "./types";
 export * from "./utils";
 
 const cooldownManager = new CooldownManager();
-const cachePath = path.resolve(__dirname, "cache");
 
-if (!fs.existsSync(cachePath)) {
-    fs.mkdirSync(cachePath, { recursive: true });
-}
+const cachePath = path.resolve(__dirname, "cache");
+const publicPath = path.resolve(__dirname, "..", "public");
+const distPath = path.join(publicPath, "dist");
+
+if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
+if (!fs.existsSync(distPath)) fs.mkdirSync(distPath, { recursive: true });
+
 
 const filePath = path.join(cachePath, "cooldowns.json");
 cooldownManager.loadFromFile(filePath);
@@ -82,9 +85,9 @@ process.on("uncaughtException", (err) => {
     console.error("🔥 Uncaught Exception:", err);
   });
   
-  process.on("unhandledRejection", (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
     console.error("🔥 Unhandled Rejection:", reason);
-  });
+});
 
 
 /**

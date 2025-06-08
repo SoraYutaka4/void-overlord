@@ -82,7 +82,7 @@ const handleEmojiDrop = async (config: Config, threadID: string, api: API) => {
 };
 
 const getCommandTriggers = () => ({
-    usebot: ["su dung bot", "use bot", "tham gia bot", "dang ky bot", "kich hoat bot", "dang ki bot"]
+    usebot: ["su dung bot", "use bot", "tham gia bot", "dang ky bot", "kich hoat bot", "dang ki bot", "register bot", "sign up bot"]
 });
 
 const executeUseBotCommand = async (api: API, message: Message, manager: CM, { body, args }: { body: string, args: string[] }) => {
