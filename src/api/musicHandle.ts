@@ -5,6 +5,7 @@ import qs from "qs";
 import * as cheerio from 'cheerio';
 import JSON5 from 'json5';
 import { get_API_Key } from "../key";
+import fs from "fs";
 
 interface Track {
     id: number;
@@ -118,7 +119,10 @@ async function createImage(content: string) {
 
         baseImg.print(font4, 200, 120, content.length > 28 ? content.slice(0, 23) + "..." : content);
 
-        await baseImg.writeAsync(path.join(__dirname, "..", "public", "music", "musicList.png"));
+        const musicPath = path.join(__dirname, "..", "public", "music");
+        if (!fs.existsSync(musicPath)) fs.mkdirSync(musicPath, { recursive: true });
+
+        await baseImg.writeAsync(path.join(musicPath, "musicList.png"));
 
         console.log("✅ Image saved successfully!");
 

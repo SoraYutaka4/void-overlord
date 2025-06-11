@@ -11,11 +11,6 @@ const app = express();
 const server = http.createServer(app);
 const JSONbigInstance = JSONbig({ storeAsString: true });
 
-const host: string = "localhost";
-const port: number = 8000;
-
-if (!host || !port) throw new Error("Host or port doesn't exist or incorrect type!");
-
 app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.is("application/json")) {
         let data = "";
@@ -60,6 +55,6 @@ app.get("/", (req: Request, res: Response) => {
     return res.send("<h1>Server is running 🚀</h1>");
 });
 
-server.listen(port, host, () => {
-    console.log(`🚀 Server running at http://${host}:${port}`);
+server.listen(8000, '0.0.0.0', () => {
+    console.log(`🚀 Server running at http://0.0.0.0:8000`);
 });
