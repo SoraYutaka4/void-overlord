@@ -6,9 +6,27 @@ import { VoidSortie, API, Message as Event } from "./bot/VoidOverlord";
 import path from "path";
 import fs from "fs";
 import login from "ws3-fca";
+import dotenv from "dotenv";
+dotenv.config();
+
+let appStateRaw = "";
+
+if (process.env.APPSTATE) {
+  try {
+    appStateRaw = Buffer.from(process.env.APPSTATE, "base64").toString();
+  } catch (err) {
+    console.warn("⚠️ APPSTATE in env is invalid, fallback to appstate.json");
+  }
+}
+
+if (!appStateRaw) {
+  appStateRaw = fs.readFileSync(path.resolve(__dirname, "../appstate.json"), "utf8");
+}
+
+const appState = JSON.parse(appStateRaw);
 
 login(
-  { appState: JSON.parse(fs.readFileSync(path.resolve(__dirname, "../appstate.json"), "utf8")) },
+  { appState },
   {
     updatePresence: true,
     autoMarkDelivery: true,
