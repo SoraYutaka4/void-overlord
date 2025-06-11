@@ -40,6 +40,5 @@ RUN npx prisma generate
 RUN npx puppeteer browsers install chrome
 
 EXPOSE 8000
-EXPOSE 4044
 
-CMD [ "./dual.sh" ]
+CMD [ "./dual2.sh" ]
