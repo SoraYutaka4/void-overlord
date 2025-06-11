@@ -89,6 +89,11 @@ process.on("unhandledRejection", (reason, promise) => {
     console.error("🔥 Unhandled Rejection:", reason);
 });
 
+setInterval(() => {
+  const mem = process.memoryUsage();
+  console.log(`[${new Date().toISOString()}] HeapUsed: ${(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+}, 60000); 
+
 
 /**
  * Deploys the bot's command center, initializing core systems and handling incoming messages.

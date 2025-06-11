@@ -51,6 +51,10 @@ app.get("/chat", (req: Request, res: Response) => {
     return res.sendFile(path.join(__dirname, "chat", "chat.html"));
 });
 
+app.get("/chat2", (req: Request, res: Response) => {
+    res.sendFile(path.resolve(__dirname, "chat/chatSimulator.html"))
+});
+
 app.get("/", (req: Request, res: Response) => {
     return res.send("<h1>Server is running 🚀</h1>");
 });

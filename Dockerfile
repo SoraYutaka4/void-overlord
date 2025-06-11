@@ -37,6 +37,9 @@ COPY dual.sh ./dual.sh
 RUN chmod +x dual.sh
 
 RUN npx prisma generate
+RUN npx puppeteer browsers install chrome
 
 EXPOSE 8000
 EXPOSE 4044
+
+CMD [ "./dual.sh" ]
