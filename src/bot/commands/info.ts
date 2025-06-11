@@ -1,7 +1,6 @@
-import config from "../../../config.json";
-import os from "os";
-import { isActive } from "../utils/command";
 import { transformTextWithStyle } from "../utils/styledFont";
+import { isActive } from "../utils/command";
+import config from "../../../config.json";
 import fs from "fs";
 import path from "path";
 
@@ -29,19 +28,6 @@ export default {
   try {
       const uptime = process.uptime();
       const botStatus = isActive() ? " Đang hoạt động ✅" : " Đã tắt ❌";
-
-      const cpuModelRaw = os.cpus()[0].model;
-      let cpuModel = cpuModelRaw;
-
-      const intelMatch = cpuModelRaw.match(/Intel\(R\) Core\(TM\) i(\d+)-(\d+)([A-Z]*)/);
-      if (intelMatch) {
-        cpuModel = `i${intelMatch[1]}-${intelMatch[2]}${intelMatch[3]}`;
-      }
-
-      const amdMatch = cpuModelRaw.match(/AMD Ryzen (\d+ \d+\w*)/);
-      if (amdMatch) {
-        cpuModel = `Ryzen ${amdMatch[1]}`;
-      }
 
       const separatorLength = 26;
       const categoryLength = "Thông tin model".length;
