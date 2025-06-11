@@ -1,5 +1,8 @@
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export interface APIKeyData {
     [key: string]: string[]; 
@@ -22,6 +25,8 @@ export const get_API_Key = (name: string): string[] => {
 
         if (name in data) {
             return data[name];
+        } else if (process.env[name]){
+            return process.env[name].split(",");
         } else {
             return [];
         }

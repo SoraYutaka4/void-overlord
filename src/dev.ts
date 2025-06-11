@@ -22,5 +22,9 @@ VoidSortie({
                 max: 0.02
             }
         },
+        df_cooldown: 1000,
+        emojiDrop: {
+            enabled: false
+        }
     },
 });
