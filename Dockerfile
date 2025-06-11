@@ -33,8 +33,8 @@ RUN npm install -g pm2
 
 COPY . .
 
-COPY dual.sh ./dual.sh
-RUN chmod +x dual.sh
+COPY dual2.sh ./dual2.sh
+RUN chmod +x dual2.sh
 
 RUN npx prisma generate
 RUN npx puppeteer browsers install chrome
