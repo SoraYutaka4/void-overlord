@@ -1,6 +1,2 @@
-#!/bin/sh
-
-pm2 start npm --name server -- run server
-pm2 start npm --name bot -- run bot
-
-pm2 logs
+#!/bin/bash
+npx concurrently -n "SERVER,BOT" -c "blue,green" "npm run server" "npm run bot"

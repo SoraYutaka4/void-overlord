@@ -89,10 +89,10 @@ process.on("unhandledRejection", (reason, promise) => {
     console.error("🔥 Unhandled Rejection:", reason);
 });
 
-setInterval(() => {
-  const mem = process.memoryUsage();
-  console.log(`[${new Date().toISOString()}] HeapUsed: ${(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`);
-}, 60000); 
+// setInterval(() => {
+//   const mem = process.memoryUsage();
+//   console.log(`[${new Date().toISOString()}] HeapUsed: ${(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+// }, 60000); 
 
 
 /**
@@ -323,10 +323,6 @@ export async function VoidSortie(options: Options) {
     app.use(cors());
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-
-    app.get("", (req: Request, res: Response) => {
-        res.sendFile(path.resolve(__dirname, "../chat/chatSimulator.html"))
-    });
 
     app.post("/send", async (req: Request, res: Response) => {
         const { message, threadID } = req.body;
