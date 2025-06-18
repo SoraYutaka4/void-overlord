@@ -1,0 +1,23 @@
+{
+    "name": {
+        "en": "Void Overlord",
+        "vi": "Hư Không Đại Đế"
+    },
+    "creator": "NPK31",
+    "prefix": "/",
+    "adminIDs": [
+        "acc1",
+        "acc2",
+        "acc3"
+    ],
+    "blacklist": {
+        "users": [
+            "test_blacklist"
+        ],
+        "threads": [
+            "test_blacklist"
+        ]
+    },
+    "version": "1.0.0",
+    "running": "on"
+}

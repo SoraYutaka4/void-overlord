@@ -1,0 +1,20 @@
+{
+    "use": "groq",
+    "models": {
+        "groq": [
+            {"name": "llama-3.1-8b-instant", "max_token": 150},
+            {"name": "gemma2-9b-it", "max_token": 150},
+            {"name": "llama-3.3-70b-versatile", "max_token": 200},
+            {"name": "deepseek-r1-distill-llama-70b", "max_token": 200}
+        ],
+        "together": [
+            {"name": "meta-llama/Llama-4-Scout-17B-16E-Instruct", "max_token": 400},
+            {"name": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free", "max_token": 400}
+        ],
+        "hf": [
+            {"name": "google/gemma-2-9b-it", "max_token": 150},
+            {"name": "meta-llama/Llama-3.3-70B-Instruct-Turbo", "max_token": 400},
+            {"name": "deepseek-ai/DeepSeek-R1", "max_token": 400}
+        ]
+    }
+}

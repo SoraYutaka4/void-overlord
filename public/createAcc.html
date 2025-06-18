@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+</head>
+<body>
+    <input placeholder="Id" id="id" width="350" height="50"><br>
+    <input placeholder="Name" id="name" width="350" height="50"><br>
+    <input placeholder="FName" id="Fname" width="350" height="50"><br>
+    <button id="btn">Submit</button>
+
+    <script src="http://localhost:8000/axios.min.js"></script>
+    <script>
+        const id = document.getElementById("id");
+        const name = document.getElementById("name");
+        const Fname = document.getElementById("Fname");
+        const btn = document.getElementById("btn");
+
+        
+        btn.onclick = async () => {
+            if (!id.value.length >= 3 && !name.value.length >= 3 && !Fname.value.length >= 3) return;
+
+            const res = await axios.post("http://localhost:8000/api", { id: id.value, name: name.value, firstName: Fname.value });
+            console.log(res);
+        }
+    </script>
+</body>
+</html>

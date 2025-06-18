@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Equip</title>
+</head>
+<body>
+    <input type="number" id="page" placeholder="Enter Page"> <br>
+    <input type="number" id="index" placeholder="Enter Index"> <br>
+    <input type="number" id="slot" placeholder="Enter Slot Number"> <br>
+    <input type="text" id="uid" placeholder="Enter User ID">
+    <br>
+    <select id="choose">
+        <option value="fight">Fight</option>
+        <option value="defense">Defense</option>
+        <option value="special">Special</option>
+    </select> <br>
+    <button id="submit">Change</button>
+
+    <script>
+        document.getElementById("submit").onclick = async () => {
+            const input1 = document.getElementById("index");
+            const input2 = document.getElementById("uid");
+            const input3 = document.getElementById("page");
+            const input4 = document.getElementById("slot");
+            const select = document.getElementById("choose");
+
+            // Kiểm tra input
+            if (!input1.value) return alert("Index is empty!");
+            if (!input2.value) return alert("User ID is empty!");
+            if (!input3.value) return alert("Page is empty!");
+            if (!input4.value) return alert("Slot number is empty!");
+            if (!select.value) return alert("Type Skill is empty!");
+
+            try {
+                const res = await fetch("http://localhost:8000/api/power/equip", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id: input2.value,
+                        index: Number(input1.value),
+                        page: Number(input3.value),
+                        slot: Number(input4.value),
+                        type: select.value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(`Error: ${data.error || "Something went wrong"}`);
+                    return;
+                }
+                
+                alert("Skill updated successfully!");
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while updating the skill.");
+            }
+        }
+    </script>
+</body>
+</html>

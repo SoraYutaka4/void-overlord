@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User</title>
+    <style>
+        input, button {
+            display: block;
+        }
+
+        input[type="checkbox"]{
+            display: inline-block;
+        }
+
+        select {
+            width: 163px;
+        }
+        button{
+            width: 163px;
+        }
+
+        input, button, select {
+            border-radius: 0px;
+        }
+
+    </style>
+</head>
+<body>
+    <input type="number" placeholder="Enter Value" id="value">
+    <select id="choose">
+        <option value="balance">Balance</option>
+        <option value="level">Level</option>
+        <option value="exp">Exp</option>
+    </select>
+    <input type="text" id="uid" placeholder="Enter User Id" required>
+    <label for="overwrite">Over Write</label><input type="checkbox" id="overwrite">
+    <button id="submit">Update</button>
+
+    <script>
+        document.getElementById("submit").onclick = async () => {
+            const uid = document.getElementById("uid");
+            const value = document.getElementById("value");
+            const choose = document.getElementById("choose");
+            const overwrite = document.getElementById("overwrite");
+            const submitBtn = document.getElementById("submit");
+    
+            if (!uid.value.trim()) return alert("User ID is empty!");
+            if (!choose.value) return alert("Please select a parameter");
+            if (!value.value.trim()) return alert("Value is empty!");
+    
+            try {
+                submitBtn.disabled = true; 
+                const res = await fetch("http://localhost:8000/api", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id: uid.value.trim(),
+                        method: choose.value,
+                        value: Number(value.value),
+                        overwrite: overwrite.checked
+                    })
+                });
+    
+                if (res.status === 200 || res.status === 204) {
+                    alert("User updated successfully!");
+                    return;
+                }
+
+                const contentType = res.headers.get("content-type");
+                let data = null;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await res.json();
+                }
+
+                if (!res.ok) {
+                    alert(`Error: ${data?.error || `Status ${res.status}`}`);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while updating the skill.");
+            } finally {
+                submitBtn.disabled = false; 
+            }
+        };
+    </script>
+    
+</body>
+</html>

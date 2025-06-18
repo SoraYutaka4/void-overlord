@@ -1,0 +1,29 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 4044:4044
+      - 8000:8000
+    command: ./dual.sh
+    networks:
+      - app-network
+    container_name: dev
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 4044:4044
+      - 8000:8000
+    command: ./dual2.sh
+    networks:
+      - app-network
+    container_name: bot
+
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        input, button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h2>Make a Transaction</h2>
+    <input type="number" id="value" placeholder="Enter The Amount">
+    <input type="text" id="id1" placeholder="Enter Sender ID">
+    <input type="text" id="id2" placeholder="Enter Receiver ID">
+    <button id="submit">Submit</button>
+
+    <script>
+        document.getElementById("submit").onclick = async (e) => {
+            const value = document.getElementById("value").value.trim();
+            const id1 = document.getElementById("id1").value.trim();
+            const id2 = document.getElementById("id2").value.trim();
+
+            if (!value || !id1 || !id2) {
+                alert("⚠️ Please fill in all fields.");
+                return;
+            }
+
+            try {
+                e.target.disabled = true;
+                
+                const res = await fetch("http://localhost:8000/api/transaction", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ value, id1, id2 })
+                });
+    
+                if (res.ok) {
+                    alert("✅ Transaction successful!");
+                    return;
+                }
+
+                const contentType = res.headers.get("content-type");
+                let data = null;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await res.json();
+                }
+
+                alert(`❌ Error: ${data?.error || `Status ${res.status}`}`);
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ An unexpected error occurred.");
+            } finally {
+                e.target.disabled = false; 
+            }
+        };
+    </script>
+</body>
+</html>
